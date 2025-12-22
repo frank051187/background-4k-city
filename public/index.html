@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Background 4K City</title>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="/favicon.ico">
+
+  <style>
+    :root{
+  --bg:#0b1220; --text:#eaf0ff; --muted:#b7c3e6;
+  --line:rgba(255,255,255,.12); --shadow:0 10px 30px rgba(0,0,0,.35);
+  --radius:16px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  color:var(--text);
+  background: radial-gradient(900px 600px at 20% 0%, #16305f 0%, transparent 60%),
+              radial-gradient(900px 600px at 80% 10%, #2a1456 0%, transparent 55%),
+              linear-gradient(180deg, var(--bg), #050914 70%);
+  min-height:100vh;
+}
+header{ padding: 26px 18px 14px; max-width: 1120px; margin: 0 auto; }
+.brand{ display:flex; align-items:center; gap:12px; }
+.logo{
+  width:40px; height:40px; border-radius:12px;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  display:grid; place-items:center;
+  box-shadow: var(--shadow);
+  font-weight:800;
+  letter-spacing:.5px;
+}
+h1{ margin:0; font-size: 22px; }
+.sub{ margin:6px 0 0; color:var(--muted); font-size:14px; line-height:1.35; }
+
+main{ max-width:1120px; margin:0 auto; padding:0 18px 36px; }
+.card{
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+}
+.toolbar{
+  padding:14px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  background: rgba(255,255,255,.03);
+  border-bottom:1px solid var(--line);
+}
+.input{
+  flex:1; min-width:240px;
+  display:flex; gap:10px; align-items:center;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(0,0,0,.25);
+}
+.input input{
+  flex:1;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:var(--text);
+  font-size:14px;
+}
+.pill{
+  display:flex; gap:8px; align-items:center;
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: rgba(0,0,0,.22);
+  color:var(--muted);
+  font-size:13px;
+}
+select{ background:transparent; color:var(--text); border:none; outline:none; font-size:13px; }
+option{ color:#111; }
+
+button{
+  cursor:pointer;
+  border:none;
+  border-radius:12px;
+  padding:10px 14px;
+  color:white;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  font-weight:600;
+  font-size:14px;
+  box-shadow:0 10px 20px rgba(0,0,0,.25);
+}
+button.secondary{
+  background: rgba(255,255,255,.06);
+  border:1px solid var(--line);
+  box-shadow:none;
+  color:var(--text);
+}
+button:disabled{ opacity:.55; cursor:not-allowed; }
+
+.meta{
+  padding:12px 14px;
+  display:flex; flex-wrap:wrap;
+  justify-content:space-between;
+  gap:10px;
+  color:var(--muted);
+  font-size:13px;
+}
+.status{ display:flex; gap:10px; align-items:center; }
+.dot{ width:10px; height:10px; border-radius:99px; background:#22c55e; box-shadow:0 0 0 4px rgba(34,197,94,.18); }
+.dot.warn{ background:#f59e0b; box-shadow:0 0 0 4px rgba(245,158,11,.18); }
+.dot.err{ background:#ef4444; box-shadow:0 0 0 4px rgba(239,68,68,.18); }
+
+.grid{
+  padding:14px;
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap:12px;
+}
+.tile{
+  position:relative;
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background: rgba(0,0,0,.18);
+  padding:0;
+  cursor:pointer;
+}
+.tile img{ width:100%; height:220px; object-fit:cover; display:block; background:#0a0f1d; }
+.badge{
+  position:absolute; left:10px; top:10px;
+  font-size:12px; padding:6px 9px;
+  border-radius:999px;
+  background: rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.16);
+  backdrop-filter: blur(10px);
+}
+.badge2{
+  position:absolute; right:10px; top:10px;
+  font-size:12px; padding:6px 9px;
+  border-radius:999px;
+  background: rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.16);
+  backdrop-filter: blur(10px);
+  text-transform:uppercase;
+}
+.favBtn{
+  position:absolute; right:10px; bottom:10px;
+  border-radius:999px;
+  padding:7px 10px;
+  border:1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.45);
+  color: white;
+  font-weight:700;
+}
+.favBtn.on{ background: rgba(236,72,153,.55); }
+
+.sentinelWrap{ padding: 0 14px 16px; }
+.sentinel{ height: 1px; }
+.smallNote{
+  color: var(--muted);
+  font-size: 12px;
+  opacity: .9;
+  text-align:center;
+  padding: 10px 0 0;
+}
+
+/* Modal */
+.modal{
+  position: fixed; inset:0;
+  background: rgba(0,0,0,.62);
+  display:none; align-items:center; justify-content:center;
+  padding:18px; z-index:10;
+}
+.modal.open{ display:flex; }
+.modal-card{
+  width:min(980px, 100%);
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  box-shadow: var(--shadow);
+}
+.modal-top{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:10px; padding:12px 14px;
+  background: rgba(0,0,0,.18);
+  border-bottom:1px solid var(--line);
+}
+.modal-title{
+  font-size:14px; color: var(--muted);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70%;
+}
+.modal-body{ display:grid; grid-template-columns: 1.3fr .7fr; }
+.modal-body img{
+  width:100%; height:min(70vh, 620px);
+  object-fit:contain; background: rgba(0,0,0,.25);
+}
+.side{
+  padding:14px;
+  border-left:1px solid var(--line);
+  background: rgba(0,0,0,.16);
+  display:flex; flex-direction:column; gap:10px;
+}
+.kv{ font-size:13px; color:var(--muted); line-height:1.5; }
+.kv b{ color:var(--text); }
+.btnRow{ display:flex; flex-wrap:wrap; gap:10px; }
+
+@media (max-width: 860px){
+  .modal-body{ grid-template-columns: 1fr; }
+  .side{ border-left:none; border-top:1px solid var(--line); }
+  .modal-body img{ height: min(60vh, 520px); }
+}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">4K</div>
+      <div>
+        <h1>Background 4K City</h1>
+        <p class="sub">
+          Fondos de pantalla 4K+ de ciudades.
+          Descarga directa, favoritos y búsqueda infinita.
+        </p>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="card">
+      <div class="toolbar">
+        <div class="input">
+          <span>🔎</span>
+          <input id="q" placeholder="Ej: nature, navidad, city night..." />
+        </div>
+
+        <div class="pill">
+          <span>🌐</span><span>Fuente:</span>
+          <select id="source">
+            <option value="pexels" selected>Pexels</option>
+            <option value="unsplash">Unsplash</option>
+            <option value="pixabay">Pixabay</option>
+            <option value="all">Todas</option>
+          </select>
+        </div>
+
+        <div class="pill">
+          <span>🖼️</span><span>Mínimo:</span>
+          <select id="minSize">
+            <option value="4k" selected>4K (3840×2160)</option>
+            <option value="uhd">UHD+ (4096×2160)</option>
+            <option value="8k">8K (7680×4320)</option>
+          </select>
+        </div>
+
+        <div class="pill">
+          <span>↔️</span><span>Orientación:</span>
+          <select id="orientation">
+            <option value="any" selected>Cualquiera</option>
+            <option value="landscape">Horizontal</option>
+            <option value="portrait">Vertical</option>
+            <option value="square">Cuadrada</option>
+          </select>
+        </div>
+
+        <div class="pill">
+          <span>⭐</span><span>Vista:</span>
+          <select id="view">
+            <option value="all" selected>Resultados</option>
+            <option value="favorites">Favoritos</option>
+          </select>
+        </div>
+
+        <button id="btnSearch">Buscar</button>
+        <button id="btnClear" class="secondary" type="button">Limpiar</button>
+        <button id="btnExport" class="secondary" type="button">Exportar ⭐</button>
+        <button id="btnImport" class="secondary" type="button">Importar ⭐</button>
+         <input id="importFile" type="file" accept="application/json" style="display:none" />
+
+      </div>
+
+      <div class="meta">
+        <div class="status">
+          <span class="dot warn" id="dot"></span>
+          <span id="statusText">Listo para buscar.</span>
+        </div>
+        <div id="countText"></div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <div class="sentinelWrap">
+        <div class="sentinel" id="sentinel"></div>
+        <div class="smallNote" id="note"></div>
+      </div>
+    </section>
+  </main>
+   <div class="modal" id="modal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-top">
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="btnRow">
+          <button id="btnDownload" type="button">Descargar</button>
+          <button id="btnOpen" class="secondary" type="button">Abrir original</button>
+          <button id="btnClose" class="secondary" type="button">Cerrar</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <img id="modalImg" alt="Vista previa" />
+        <div class="side">
+          <div class="kv"><b>Resolución:</b> <span id="kvRes"></span></div>
+          <div class="kv"><b>Autor:</b> <span id="kvAuthor"></span></div>
+          <div class="kv"><b>Fuente:</b> <span id="kvSource"></span></div>
+          <div class="btnRow">
+            <button id="btnFav" type="button">⭐ Favorito</button>
+            <button id="btnCopy" class="secondary" type="button">Copiar link</button>
+          </div>
+          <div class="btnRow">
+            <button id="btnPage" class="secondary" type="button">Ver página</button>
+          </div>
+          <div class="kv" style="opacity:.9;">Descarga directa: tu backend trae la imagen y el navegador la guarda.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+   
+    const SIZE_PRESETS = {
+      "4k":  { w: 3840, h: 2160 },
+      "uhd": { w: 4096, h: 2160 },
+      "8k":  { w: 7680, h: 4320 },
+    };
+
+    const q = document.getElementById("q");
+    const sourceSel = document.getElementById("source");
+    const minSizeSel = document.getElementById("minSize");
+    const orientationSel = document.getElementById("orientation");
+    const viewSel = document.getElementById("view");
+    const btnSearch = document.getElementById("btnSearch");
+    const btnClear = document.getElementById("btnClear");
+    const btnExport = document.getElementById("btnExport");
+    const btnImport = document.getElementById("btnImport");
+    const importFile = document.getElementById("importFile");
+
+    const grid = document.getElementById("grid");
+    const dot = document.getElementById("dot");
+    const statusText = document.getElementById("statusText");
+    const countText = document.getElementById("countText");
+    const note = document.getElementById("note");
+    const sentinel = document.getElementById("sentinel");
+
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalImg = document.getElementById("modalImg");
+    const kvRes = document.getElementById("kvRes");
+    const kvAuthor = document.getElementById("kvAuthor");
+    const kvSource = document.getElementById("kvSource");
+    const btnDownload = document.getElementById("btnDownload");
+    const btnOpen = document.getElementById("btnOpen");
+    const btnClose = document.getElementById("btnClose");
+    const btnCopy = document.getElementById("btnCopy");
+    const btnPage = document.getElementById("btnPage");
+    const btnFav = document.getElementById("btnFav");
+
+    function setStatus(type, text){
+      statusText.textContent = text;
+      dot.className = "dot" + (type === "ok" ? "" : type === "warn" ? " warn" : " err");
+    }
+
+    function matchesOrientation(item, ori){
+      if (ori === "any") return true;
+      const w = item.width, h = item.height;
+      if (ori === "landscape") return w > h;
+      if (ori === "portrait") return h > w;
+      if (ori === "square") return w === h;
+      return true;
+    }
+
+    function isMinSize(item, preset){
+      const { w, h } = SIZE_PRESETS[preset];
+      return item.width >= w && item.height >= h;
+    }
+
+    // ----- Favorites (LocalStorage)
+    const FAV_KEY = "buscador4k_favs_v1";
+    function loadFavs(){
+      try { return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); }
+      catch { return []; }
+    }
+    function saveFavs(arr){ localStorage.setItem(FAV_KEY, JSON.stringify(arr)); }
+    function favId(item){ return `${item.source}:${item.id}`; }
+    function isFav(item){ return loadFavs().some(f => f.favId === favId(item)); }
+    function toggleFav(item){
+      const favs = loadFavs();
+      const id = favId(item);
+      const i = favs.findIndex(f => f.favId === id);
+      if (i >= 0) favs.splice(i, 1);
+      else favs.push({ favId: id, item });
+      saveFavs(favs);
+      return i < 0;
+    }
+
+    // ----- state
+    let page = 1;
+    let lastQuery = "";
+    let loading = false;
+    let reachedEnd = false;
+    let shown = 0;
+    let currentModalItem = null;
+
+    function clearResults(){
+      grid.innerHTML = "";
+      shown = 0;
+      countText.textContent = "";
+      note.textContent = "";
+    }
+
+    function createTile(item){
+      const el = document.createElement("div");
+      el.className = "tile";
+
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.src = item.src.preview;
+      img.alt = item.alt || "Imagen";
+
+      const badge = document.createElement("div");
+      badge.className = "badge";
+      badge.textContent = `${item.width}×${item.height}`;
+
+      const badge2 = document.createElement("div");
+      badge2.className = "badge2";
+      badge2.textContent = item.source;
+
+      const fav = document.createElement("button");
+      fav.type = "button";
+      fav.className = "favBtn" + (isFav(item) ? " on" : "");
+      fav.textContent = isFav(item) ? "★" : "☆";
+      fav.title = "Favorito";
+
+      fav.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const added = toggleFav(item);
+        fav.className = "favBtn" + (added ? " on" : "");
+        fav.textContent = added ? "★" : "☆";
+        if (viewSel.value === "favorites") renderFavorites();
+      });
+
+      el.appendChild(img);
+      el.appendChild(badge);
+      el.appendChild(badge2);
+      el.appendChild(fav);
+
+      el.addEventListener("click", () => openModal(item));
+      return el;
+    }
+
+    function openModal(item){
+      currentModalItem = item;
+      modalTitle.textContent = item.alt?.trim() ? item.alt : "Vista previa";
+      modalImg.src = item.src.original;
+      kvRes.textContent = `${item.width}×${item.height}`;
+      kvAuthor.textContent = item.author || "-";
+      kvSource.textContent = item.source;
+      btnFav.textContent = isFav(item) ? "★ Quitar favorito" : "⭐ Favorito";
+      modal.classList.add("open");
+    }
+
+    function closeModal(){
+      modal.classList.remove("open");
+      modalImg.src = "";
+      currentModalItem = null;
+    }
+
+    btnClose.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+    });
+
+    btnOpen.addEventListener("click", () => {
+      if (!currentModalItem) return;
+      window.open(currentModalItem.src.original, "_blank", "noopener");
+    });
+
+    btnCopy.addEventListener("click", async () => {
+      if (!currentModalItem) return;
+      try {
+        await navigator.clipboard.writeText(currentModalItem.src.original);
+        setStatus("ok", "Link copiado.");
+        setTimeout(()=>setStatus("ok","Listo."), 800);
+      } catch {
+        alert("No pude copiar. Copia desde 'Abrir original'.");
+      }
+    });
+
+    btnPage.addEventListener("click", () => {
+      if (!currentModalItem?.pageUrl) return;
+      window.open(currentModalItem.pageUrl, "_blank", "noopener");
+    });
+
+    btnFav.addEventListener("click", () => {
+      if (!currentModalItem) return;
+      const added = toggleFav(currentModalItem);
+      btnFav.textContent = added ? "★ Quitar favorito" : "⭐ Favorito";
+      if (viewSel.value === "favorites") renderFavorites();
+    });
+
+    function filenameFor(item){
+      const ext = "jpg";
+      const safeSource = item.source.replace(/[^a-z0-9_-]/gi,"");
+      const safeId = String(item.id).replace(/[^a-z0-9_-]/gi,"");
+      return `${safeSource}_${safeId}_${item.width}x${item.height}.${ext}`;
+    }
+
+    // Descarga directa (por backend)
+    btnDownload.addEventListener("click", () => {
+      if (!currentModalItem) return;
+      const url = currentModalItem.downloadUrl || currentModalItem.src.original;
+      const name = filenameFor(currentModalItem);
+      window.location.href = `/api/download?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}`;
+    });
+
+    async function fetchPage(){
+      if (loading || reachedEnd) return;
+      if (viewSel.value === "favorites") return;
+
+      const term = lastQuery.trim();
+      if (!term) return;
+
+      loading = true;
+      setStatus("warn", "Cargando...");
+      btnSearch.disabled = true;
+
+      try {
+        const src = sourceSel.value;
+        const perPage = 30;
+
+        const resp = await fetch(`/api/search?q=${encodeURIComponent(term)}&source=${encodeURIComponent(src)}&page=${page}&per_page=${perPage}`);
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || "Error en búsqueda");
+
+        const preset = minSizeSel.value;
+        const ori = orientationSel.value;
+
+        const filtered = (data.items || [])
+          .filter(it => isMinSize(it, preset))
+          .filter(it => matchesOrientation(it, ori));
+
+        if (filtered.length === 0 && page === 1) setStatus("warn", "No encontré resultados con esos filtros.");
+        else setStatus("ok", "Listo.");
+
+        filtered.forEach(it => grid.appendChild(createTile(it)));
+        shown += filtered.length;
+
+        countText.textContent = `Mostrando: ${shown} · Página: ${page} · Fuente: ${sourceSel.value.toUpperCase()}`;
+
+        if ((data.items || []).length === 0) {
+          reachedEnd = true;
+          note.textContent = "No hay más resultados.";
+        } else {
+          note.textContent = "Desliza para cargar más…";
+        }
+
+        if (Array.isArray(data.errors) && data.errors.length) {
+          note.textContent = "Algunas fuentes fallaron, pero otras funcionaron.";
+        }
+
+        page += 1;
+      } catch (e) {
+        setStatus("err", e.message || "Error");
+      } finally {
+        loading = false;
+        btnSearch.disabled = false;
+      }
+    }
+
+    async function startSearch(){
+      const term = q.value.trim();
+      if (!term) { setStatus("warn", "Escribe algo para buscar."); return; }
+
+      lastQuery = term;
+      page = 1;
+      reachedEnd = false;
+      clearResults();
+      setStatus("warn", "Buscando...");
+      await fetchPage();
+    }
+
+    function renderFavorites(){
+      clearResults();
+      const favs = loadFavs().map(x => x.item);
+
+      const preset = minSizeSel.value;
+      const ori = orientationSel.value;
+
+      const filtered = favs
+        .filter(it => isMinSize(it, preset))
+        .filter(it => matchesOrientation(it, ori));
+
+      filtered.forEach(it => grid.appendChild(createTile(it)));
+      shown = filtered.length;
+
+      setStatus("ok", "Favoritos.");
+      countText.textContent = `Favoritos mostrados: ${shown}`;
+      note.textContent = shown ? "" : "No tienes favoritos aún. Marca con ☆ en una imagen.";
+    }
+
+    const io = new IntersectionObserver(async (entries) => {
+      for (const ent of entries) {
+        if (ent.isIntersecting) await fetchPage();
+      }
+    }, { root: null, rootMargin: "800px 0px", threshold: 0.01 });
+
+    io.observe(sentinel);
+
+    btnSearch.addEventListener("click", () => {
+      if (viewSel.value === "favorites") renderFavorites();
+      else startSearch();
+    });
+
+    btnClear.addEventListener("click", () => {
+      q.value = "";
+      lastQuery = "";
+      page = 1;
+      reachedEnd = false;
+      clearResults();
+      setStatus("warn", "Listo para buscar.");
+      countText.textContent = "";
+    });
+
+    q.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (viewSel.value === "favorites") renderFavorites();
+        else startSearch();
+      }
+    });
+
+    [sourceSel, minSizeSel, orientationSel].forEach(sel => {
+      sel.addEventListener("change", () => {
+        if (viewSel.value === "favorites") renderFavorites();
+        else if (lastQuery) startSearch();
+      });
+    });
+
+    viewSel.addEventListener("change", () => {
+      if (viewSel.value === "favorites") renderFavorites();
+      else if (lastQuery) startSearch();
+      else {
+        clearResults();
+        setStatus("warn", "Listo para buscar.");
+      }
+    });
+    
+    // ===== Exportar / Importar Favoritos =====
+
+btnExport.addEventListener("click", () => {
+  const favs = loadFavs();
+
+  if (!favs.length) {
+    setStatus("warn", "No tienes favoritos para exportar.");
+    return;
+  }
+
+  const blob = new Blob([JSON.stringify(favs, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "background-4k-city-favoritos.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
+  setStatus("ok", "Favoritos exportados ✅");
+});
+
+btnImport.addEventListener("click", () => {
+  importFile.value = "";
+  importFile.click();
+});
+
+importFile.addEventListener("change", async () => {
+  const file = importFile.files?.[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+
+    if (!Array.isArray(data)) throw new Error("Archivo inválido.");
+
+    const current = loadFavs();
+    const map = new Map(current.map(x => [x.favId, x]));
+
+    for (const entry of data) {
+      if (entry?.favId && entry?.item) map.set(entry.favId, entry);
+    }
+
+    saveFavs([...map.values()]);
+    setStatus("ok", "Favoritos importados ✅");
+
+    if (viewSel.value === "favorites") renderFavorites();
+  } catch (e) {
+    setStatus("err", "Error al importar favoritos.");
+  }
+});
+
+    setStatus("warn", "Listo para buscar.");
+    q.focus();
+  </script>
+
+</body>
+</html>
