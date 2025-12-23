@@ -143,6 +143,104 @@ app.get("/api/search", async (req, res) => {
     res.status(500).json({ error: e.message || "Error del servidor" });
   }
 });
+// ===== VIDEOS (Pexels + Pixabay) =====
+app.get("/api/videos", async (req, res) => {
+  const q = String(req.query.q || "city").trim();
+  const source = String(req.query.source || "pexels").toLowerCase();
+  const page = Math.max(1, parseInt(req.query.page || "1", 10));
+  const perPage = Math.min(40, Math.max(5, parseInt(req.query.per_page || "20", 10)));
+
+  try {
+    const items = [];
+    const errors = [];
+
+    // 🎬 PEXELS VIDEOS
+    if ((source === "pexels" || source === "all") && process.env.PEXELS_API_KEY) {
+      try {
+        const r = await fetch(
+          `https://api.pexels.com/videos/search?query=${encodeURIComponent(q)}&page=${page}&per_page=${perPage}`,
+          { headers: { Authorization: process.env.PEXELS_API_KEY } }
+        );
+        const j = await r.json();
+
+        (j.videos || []).forEach(v => {
+          const best = (v.video_files || [])
+            .filter(f => f.width && f.height && f.link)
+            .sort((a,b) => (b.width * b.height) - (a.width * a.height))[0];
+
+          if (!best) return;
+
+          items.push({
+            id: String(v.id),
+            source: "pexels",
+            width: best.width,
+            height: best.height,
+            duration: v.duration || null,
+            author: v.user?.name || "Pexels",
+            alt: "Video",
+            pageUrl: v.url,
+            videoUrl: best.link,
+            src: { preview: v.image, original: v.image },
+            downloadUrl: best.link
+          });
+        });
+      } catch (e) {
+        errors.push("pexels");
+      }
+    }
+
+    // 🎬 PIXABAY VIDEOS
+    if ((source === "pixabay" || source === "all") && process.env.PIXABAY_API_KEY) {
+      try {
+        const pixUrl =
+          `https://pixabay.com/api/videos/?key=${encodeURIComponent(process.env.PIXABAY_API_KEY)}` +
+          `&q=${encodeURIComponent(q)}` +
+          `&page=${page}` +
+          `&per_page=${perPage}` +
+          `&safesearch=true`;
+
+        const r2 = await fetch(pixUrl);
+        const j2 = await r2.json();
+
+        (j2.hits || []).forEach(v => {
+          const files = v.videos || {};
+          const best = files.large || files.medium || files.small || files.tiny;
+          if (!best?.url) return;
+
+          // thumbnail simple (puede salir vacío, lo mejoramos si hace falta)
+          const thumb =
+            v.videos?.large?.thumbnail ||
+            v.videos?.medium?.thumbnail ||
+            v.videos?.small?.thumbnail ||
+            v.videos?.tiny?.thumbnail ||
+            v.userImageURL ||
+            "";
+
+          items.push({
+            id: String(v.id),
+            source: "pixabay",
+            width: best.width || 0,
+            height: best.height || 0,
+            duration: v.duration || null,
+            author: v.user || "Pixabay",
+            alt: v.tags ? `Video: ${v.tags}` : "Video",
+            pageUrl: v.pageURL || null,
+            videoUrl: best.url,
+            src: { preview: thumb, original: thumb },
+            downloadUrl: best.url
+          });
+        });
+      } catch (e) {
+        errors.push("pixabay");
+      }
+    }
+
+    res.json({ items, page, perPage, errors });
+  } catch (err) {
+    res.status(500).json({ error: "Error buscando videos" });
+  }
+});
+
 
 // --------- API DOWNLOAD (directo) ----------
 app.get("/api/download", async (req, res) => {
@@ -169,4 +267,7 @@ app.get("/api/download", async (req, res) => {
 const PORT = parseInt(process.env.PORT || "3000", 10);
 app.listen(PORT, () => {
   console.log(`✅ Servidor listo: http://localhost:${PORT}`);
+});
+app.get("/api/baseurl", (req, res) => {
+  res.json({ BASE_URL: process.env.BASE_URL || null });
 });

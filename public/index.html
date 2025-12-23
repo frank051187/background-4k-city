@@ -246,6 +246,13 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
             <option value="all">Todas</option>
           </select>
         </div>
+        <div class="pill">
+  <span>🎬</span><span>Tipo:</span>
+  <select id="mediaType">
+    <option value="photos" selected>Imágenes</option>
+    <option value="videos">Videos 4K</option>
+  </select>
+</div>
 
         <div class="pill">
           <span>🖼️</span><span>Mínimo:</span>
@@ -345,6 +352,8 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
     const btnExport = document.getElementById("btnExport");
     const btnImport = document.getElementById("btnImport");
     const importFile = document.getElementById("importFile");
+    const mediaTypeSel = document.getElementById("mediaType");
+    
 
     const grid = document.getElementById("grid");
     const dot = document.getElementById("dot");
@@ -425,7 +434,7 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
 
       const img = document.createElement("img");
       img.loading = "lazy";
-      img.src = item.src.preview;
+      img.src = item.src?.preview || item.preview || "";
       img.alt = item.alt || "Imagen";
 
       const badge = document.createElement("div");
@@ -435,6 +444,9 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
       const badge2 = document.createElement("div");
       badge2.className = "badge2";
       badge2.textContent = item.source;
+
+      if (item.videoUrl) badge2.textContent = "VIDEO";
+
 
       const fav = document.createElement("button");
       fav.type = "button";
@@ -460,22 +472,75 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
     }
 
     function openModal(item){
-      currentModalItem = item;
-      modalTitle.textContent = item.alt?.trim() ? item.alt : "Vista previa";
-      modalImg.src = item.src.original;
-      kvRes.textContent = `${item.width}×${item.height}`;
-      kvAuthor.textContent = item.author || "-";
-      kvSource.textContent = item.source;
-      btnFav.textContent = isFav(item) ? "★ Quitar favorito" : "⭐ Favorito";
-      modal.classList.add("open");
-    }
+  currentModalItem = item;
+
+  modalTitle.textContent = item.alt?.trim() ? item.alt : "Vista previa";
+  kvRes.textContent = `${item.width}×${item.height}`;
+  kvAuthor.textContent = item.author || "-";
+  kvSource.textContent = item.source;
+
+  btnFav.textContent = isFav(item) ? "★ Quitar favorito" : "⭐ Favorito";
+
+  // Limpia contenido anterior
+  const oldMedia = document.getElementById("modalMedia");
+  if (oldMedia) oldMedia.remove();
+
+  // Crea contenedor media (img o video)
+  const mediaWrap = document.createElement("div");
+  mediaWrap.id = "modalMedia";
+  mediaWrap.style.background = "rgba(0,0,0,.25)";
+
+  const isVideo = !!item.videoUrl;
+
+  if (isVideo) {
+    const v = document.createElement("video");
+v.controls = true;
+v.autoplay = false;     
+v.playsInline = true;
+v.muted = false;
+v.volume = 1;
+v.style.width = "100%";
+v.style.height = "min(70vh, 620px)";
+v.style.objectFit = "contain";
+v.src = item.videoUrl;
+mediaWrap.appendChild(v);
+
+  } else {
+    const img = document.createElement("img");
+    img.alt = "Vista previa";
+    img.style.width = "100%";
+    img.style.height = "min(70vh, 620px)";
+    img.style.objectFit = "contain";
+    img.src = item.src?.original || item.downloadUrl;
+    mediaWrap.appendChild(img);
+  }
+
+  // Inserta mediaWrap al inicio de modal-body (antes del side)
+  const modalBody = modal.querySelector(".modal-body");
+  const side = modalBody.querySelector(".side");
+  modalBody.insertBefore(mediaWrap, side);
+
+  modal.classList.add("open");
+}
+
 
     function closeModal(){
-      modal.classList.remove("open");
-      modalImg.src = "";
-      currentModalItem = null;
-    }
+  modal.classList.remove("open");
 
+  // quitar el media dinámico (img/video)
+  const oldMedia = document.getElementById("modalMedia");
+  if (oldMedia) oldMedia.remove();
+
+  // por si había un video reproduciéndose, pausa y limpia
+  const anyVideo = modal.querySelector("video");
+  if (anyVideo) {
+    anyVideo.pause();
+    anyVideo.removeAttribute("src");
+    anyVideo.load();
+  }
+
+  currentModalItem = null;
+}
     btnClose.addEventListener("click", closeModal);
     modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
     document.addEventListener("keydown", (e) => {
@@ -484,18 +549,20 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
 
     btnOpen.addEventListener("click", () => {
       if (!currentModalItem) return;
-      window.open(currentModalItem.src.original, "_blank", "noopener");
+      const link = currentModalItem.pageUrl || currentModalItem.videoUrl || currentModalItem.src?.original;
+      if (link) window.open(link, "_blank", "noopener");
     });
 
     btnCopy.addEventListener("click", async () => {
       if (!currentModalItem) return;
+      const link = currentModalItem.videoUrl || currentModalItem.downloadUrl || currentModalItem.src?.original;
       try {
-        await navigator.clipboard.writeText(currentModalItem.src.original);
-        setStatus("ok", "Link copiado.");
-        setTimeout(()=>setStatus("ok","Listo."), 800);
-      } catch {
-        alert("No pude copiar. Copia desde 'Abrir original'.");
-      }
+      await navigator.clipboard.writeText(link);
+      setStatus("ok", "Link copiado.");
+      setTimeout(()=>setStatus("ok","Listo."), 800);
+    }  catch {
+    alert("No pude copiar.");
+    }
     });
 
     btnPage.addEventListener("click", () => {
@@ -511,16 +578,18 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
     });
 
     function filenameFor(item){
-      const ext = "jpg";
+      const isVideo = !!item.videoUrl;
+      const ext = isVideo ? "mp4" : "jpg";
       const safeSource = item.source.replace(/[^a-z0-9_-]/gi,"");
       const safeId = String(item.id).replace(/[^a-z0-9_-]/gi,"");
       return `${safeSource}_${safeId}_${item.width}x${item.height}.${ext}`;
     }
 
+
     // Descarga directa (por backend)
     btnDownload.addEventListener("click", () => {
       if (!currentModalItem) return;
-      const url = currentModalItem.downloadUrl || currentModalItem.src.original;
+      const url = currentModalItem.videoUrl || currentModalItem.downloadUrl || currentModalItem.src.original;
       const name = filenameFor(currentModalItem);
       window.location.href = `/api/download?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}`;
     });
@@ -540,7 +609,12 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
         const src = sourceSel.value;
         const perPage = 30;
 
-        const resp = await fetch(`/api/search?q=${encodeURIComponent(term)}&source=${encodeURIComponent(src)}&page=${page}&per_page=${perPage}`);
+        const type = mediaTypeSel.value;
+const endpoint = type === "videos" ? "/api/videos" : "/api/search";
+
+const resp = await fetch(
+  `${endpoint}?q=${encodeURIComponent(term)}&source=${encodeURIComponent(src)}&page=${page}&per_page=${perPage}`
+);
         const data = await resp.json();
         if (!resp.ok) throw new Error(data.error || "Error en búsqueda");
 
@@ -589,6 +663,14 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
       clearResults();
       setStatus("warn", "Buscando...");
       await fetchPage();
+    }
+    function syncSourcesForMedia(){
+      const isVideos = mediaTypeSel.value === "videos";
+      const unsplashOption = sourceSel.querySelector('option[value="unsplash"]');
+      if (unsplashOption) unsplashOption.disabled = isVideos;
+
+         // si estaba en unsplash y cambia a videos, lo movemos a "all"
+      if (isVideos && sourceSel.value === "unsplash") sourceSel.value = "all";
     }
 
     function renderFavorites(){
@@ -656,7 +738,14 @@ button:disabled{ opacity:.55; cursor:not-allowed; }
         setStatus("warn", "Listo para buscar.");
       }
     });
-    
+      mediaTypeSel.addEventListener("change", () => {
+       syncSourcesForMedia();
+
+       // refrescar resultados según vista
+  if (viewSel.value === "favorites") renderFavorites();
+  else if (lastQuery) startSearch();
+});
+
     // ===== Exportar / Importar Favoritos =====
 
 btnExport.addEventListener("click", () => {
@@ -711,7 +800,7 @@ importFile.addEventListener("change", async () => {
     setStatus("err", "Error al importar favoritos.");
   }
 });
-
+    syncSourcesForMedia();
     setStatus("warn", "Listo para buscar.");
     q.focus();
   </script>
